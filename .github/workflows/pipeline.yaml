@@ -1,4 +1,4 @@
-name: Build and Release
+name: Download signatures and release archive
 
 on:
   #schedule:
@@ -22,13 +22,12 @@ jobs:
         timeout-minutes: 15
         run: bash pipeline.sh
 
-      - name: Delete existing release (if exists)
-        uses: dev-drprasad/delete-tag-and-release@latest
+      - name: Delete existing release
         continue-on-error: true
-        with:
-          tag_name: "latest"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+        gh release delete latest --cleanup-tag -y
 
       - name: Create new release
         uses: softprops/action-gh-release@v2
