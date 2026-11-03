@@ -25,9 +25,9 @@ jobs:
       - name: Delete existing release
         continue-on-error: true
         env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-        gh release delete latest --cleanup-tag -y
+          gh release delete latest --cleanup-tag -y
 
       - name: Create new release
         uses: softprops/action-gh-release@v2
