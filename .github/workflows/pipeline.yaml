@@ -1,0 +1,40 @@
+name: Build and Release
+
+on:
+  #schedule:
+  #  - cron: "0 0 */15 * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch file list and Compress
+        timeout-minutes: 15
+        run: bash pipeline.sh
+
+      - name: Delete existing release (if exists)
+        uses: dev-drprasad/delete-tag-and-release@latest
+        continue-on-error: true
+        with:
+          tag_name: "latest"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create new release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "latest"
+          name: "latest"
+          files: /tmp/clamav-sigs.tar.xz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
