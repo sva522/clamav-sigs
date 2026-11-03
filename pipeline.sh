@@ -2,9 +2,12 @@
 
 mkdir /tmp/clamav-sigs && cd /tmp/clamav-sigs
 
+echo Remove previous tag
+gh release delete latest --cleanup-tag -y || true
+
 # Install requires tools
 sudo apt-get update
-sudo apt-get install -y clamav xz zpaq jq curl wget
+sudo apt-get install -y clamav xz-utils zpaq jq curl wget
 
 # Download official signatures
 freshclam

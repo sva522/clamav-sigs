@@ -1,4 +1,4 @@
-name: Download signatures and release archive
+name: Pipeline
 
 on:
   #schedule:
@@ -18,16 +18,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fetch file list and Compress
+      - name: Launch script
         timeout-minutes: 15
         run: bash pipeline.sh
-
-      - name: Delete existing release
-        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release delete latest --cleanup-tag -y
 
       - name: Create new release
         uses: softprops/action-gh-release@v2
