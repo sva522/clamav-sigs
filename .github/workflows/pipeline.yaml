@@ -2,7 +2,7 @@ name: Pipeline
 
 on:
   #schedule:
-  #  - cron: "0 0 */15 * *"
+  #  - cron: "0 3 * * 6" # Every saturday at 3 am
   workflow_dispatch:
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
 
       - name: Launch script
         timeout-minutes: 15
-        run: sudo bash pipeline.sh
+        run: bash pipeline.sh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}

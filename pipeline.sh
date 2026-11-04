@@ -3,15 +3,14 @@ set -euo pipefail
 
 # Install required tools
 export DEBIAN_FRONTEND=noninteractive
-apt-get update -qq
-apt-get install -y -qq --no-install-recommends \
+sudo apt-get update -qq
+sudo apt-get install -y -qq --no-install-recommends \
     ca-certificates git clamav jq wget curl rsync  \
     dnsutils gnupg >/dev/null
 
 # Each build produce an archive which is released with 'latest' tag
 echo 'Remove old latest tag:'
-gh release delete latest --cleanup-tag -y || true # Remove release
-git push --delete origin latest           || true # Remove git tag
+gh release delete latest --cleanup-tag -y || true
 
 # Create build dir
 workdir=/tmp/clamav-sigs
@@ -19,7 +18,7 @@ mkdir "$workdir" && cd "$workdir"
 
 # Download official signatures
 mkdir clamav-official-sigs
-chown clamav:clamav clamav-official-sigs
+sudo chown clamav:clamav clamav-official-sigs
 freshclam --datadir="${workdir}/clamav-official-sigs"
 
 export GNUPGHOME=$(mktemp -d -p /dev/shm --suffix _gpg); chmod 0700 "$GNUPGHOME"
@@ -46,7 +45,7 @@ cp -R /var/lib/clamav-unofficial-sigs clamav-unofficial-sigs
 rm -r "${downloader_dir}"
 
 # Create release archive
-chown -R clamav:clamav .
+sudo chown -R "$(id -u)":"$(id -g)" .
 tar cf /tmp/clamav-sigs.tar .
 tar tvf /tmp/clamav-sigs.tar
 
