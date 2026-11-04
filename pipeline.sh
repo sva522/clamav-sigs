@@ -8,7 +8,7 @@ apt-get install -y -qq --no-install-recommends \
     ca-certificates clamav jq wget curl rsync dnsutils gnupg
 
 # Install github cli
-curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg > /usr/share/keyrings/githubcli-archive-keyring.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list
 apt-get update -qq
 apt-get install -y -qq --no-install-recommends gh
@@ -37,9 +37,6 @@ clam_group="clamav"
 user_configuration_complete="yes"
 EOF
 
-# Create gpg tmp dir
-export GNUPGHOME=$(mktemp -d -p /dev/shm --suffix _gpg); chmod 0700 "$GNUPGHOME"
-
 # Download unofficial signatures
 "${downloader_dir}/clamav-unofficial-sigs.sh" -c "${downloader_dir}/config"
 cp -R /var/lib/clamav-unofficial-sigs clamav-unofficial-sigs
@@ -53,5 +50,7 @@ tar tvf /tmp/clamav-sigs.tar
 # Release tar
 if [ -v GH_TOKEN ]; then
     gh release delete latest --cleanup-tag -y || true
-    gh release create latest /tmp/clamav-sigs.tar --repo "$GH_REPO" --title latest
+    gh release create latest /tmp/clamav-sigs.tar --title latest --notes 'Last clamav signatures'
+else
+    echo 'No release was created.'
 fi
