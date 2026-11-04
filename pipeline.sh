@@ -17,11 +17,14 @@ workdir=/tmp/clamav-sigs
 mkdir "$workdir" && cd "$workdir"
 
 # Download official signatures
-mkdir clamav-official-sigs
-sudo chown clamav:clamav clamav-official-sigs
-sudo ls -l /etc/clamav/freshclam.conf
+mkdir clamav-official-sigs && sudo chown clamav:clamav clamav-official-sigs
+# Configure freshclam
+sudo sed -i 's|^UpdateLogFile .*|UpdateLogFile /dev/stdout|' /etc/clamav/freshclam.conf
+sudo sed -i 's|^Foreground .*|Foreground true|' /etc/clamav/freshclam.conf
+sudo sed -i '/^NotifyClamd /d' /etc/clamav/freshclam.conf
+sudo sed -i "s|^DatabaseDirectory .*|DatabaseDirectory ${workdir}/clamav-official-sigs|" /etc/clamav/freshclam.conf
 sudo cat /etc/clamav/freshclam.conf
-sudo freshclam --stdout --checks=1 --datadir="${workdir}/clamav-official-sigs"
+sudo freshclam
 
 export GNUPGHOME=$(mktemp -d -p /dev/shm --suffix _gpg); chmod 0700 "$GNUPGHOME"
 
