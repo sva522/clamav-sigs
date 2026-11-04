@@ -13,9 +13,8 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githu
 apt-get update -qq
 apt-get install -y -qq --no-install-recommends gh
 
-work_dir="$PWD"
-
 # Create build dir
+work_dir="$PWD"
 output_dir=/tmp/clamav-sigs
 mkdir "$output_dir" && cd "$output_dir"
 
