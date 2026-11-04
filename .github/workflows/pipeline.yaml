@@ -9,6 +9,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    container:
+      image: ubuntu:latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     permissions:
       contents: write
 
@@ -19,8 +24,5 @@ jobs:
           fetch-depth: 0
 
       - name: Launch script
-        timeout-minutes: 15
         run: bash pipeline.sh
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
+        timeout-minutes: 10
