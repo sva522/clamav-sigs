@@ -13,13 +13,15 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githu
 apt-get update -qq
 apt-get install -y -qq --no-install-recommends gh
 
+work_dir="$PWD"
+
 # Create build dir
-workdir=/tmp/clamav-sigs
-mkdir "$workdir" && cd "$workdir"
+output_dir=/tmp/clamav-sigs
+mkdir "$output_dir" && cd "$output_dir"
 
 # Download official signatures
 mkdir clamav-official-sigs && chown clamav:clamav clamav-official-sigs
-freshclam --datadir="${workdir}/clamav-official-sigs"
+freshclam --datadir="${output_dir}/clamav-official-sigs"
 
 # Get unofficial signatures download scripts
 repo=extremeshok/clamav-unofficial-sigs
@@ -47,6 +49,8 @@ chown -R clamav:clamav .
 tar cf /tmp/clamav-sigs.tar .
 tar tvf /tmp/clamav-sigs.tar
 
+cd "$work_dir"
+
 # Release tar
 if [ -v GH_TOKEN ]; then
     gh release delete latest --cleanup-tag -y || true
@@ -54,3 +58,4 @@ if [ -v GH_TOKEN ]; then
 else
     echo 'No release was created.'
 fi
+
