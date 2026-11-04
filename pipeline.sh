@@ -5,7 +5,7 @@ set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq --no-install-recommends \
-    ca-certificates clamav jq wget curl rsync dnsutils gnupg
+    ca-certificates clamav jq wget curl rsync dnsutils gnupg zstd
 
 # Install github cli
 curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg > /usr/share/keyrings/githubcli-archive-keyring.gpg
@@ -14,7 +14,6 @@ apt-get update -qq
 apt-get install -y -qq --no-install-recommends gh
 
 # Create build dir
-work_dir="$PWD"
 output_dir=/tmp/clamav-sigs
 mkdir "$output_dir" && cd "$output_dir"
 
@@ -47,16 +46,12 @@ rm -r "${downloader_dir}"
 chown -R clamav:clamav .
 tar cf /tmp/clamav-sigs.tar .
 tar tvf /tmp/clamav-sigs.tar
-
-cd "$work_dir"
-export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
-ls
-ls .git
+zstd /tmp/clamav-sigs.tar
 
 # Release tar
 if [ -v GH_TOKEN ]; then
-    gh release delete latest --cleanup-tag -y || true
-    gh release create latest /tmp/clamav-sigs.tar \
+    gh release delete latest --cleanup-tag -y --repo "$GITHUB_REPOSITORY" || true
+    gh release create latest /tmp/clamav-sigs.tar.zst \
     --repo "$GITHUB_REPOSITORY" \
     --title latest \
     --notes 'Last clamav signatures'
