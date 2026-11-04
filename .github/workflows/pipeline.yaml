@@ -1,8 +1,8 @@
 name: Pipeline
 
 on:
-  #schedule:
-  #  - cron: "0 3 * * 6" # Every saturday at 3 am
+  schedule:
+    - cron: "0 3 * * 6" # Every saturday at 3 am
   workflow_dispatch:
 
 jobs:
