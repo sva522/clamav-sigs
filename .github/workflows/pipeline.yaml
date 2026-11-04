@@ -20,15 +20,7 @@ jobs:
 
       - name: Launch script
         timeout-minutes: 15
-        run: bash pipeline.sh
+        run: sudo bash pipeline.sh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create new release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: "latest"
-          name: "latest"
-          files: /tmp/clamav-sigs.tar.xz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
