@@ -48,13 +48,16 @@ tar cf /tmp/clamav-sigs.tar .
 tar tvf /tmp/clamav-sigs.tar
 zstd /tmp/clamav-sigs.tar
 
-# Release tar
 if [ -v GH_TOKEN ]; then
+	# Remove previous release
     gh release delete latest --cleanup-tag -y --repo "$GITHUB_REPOSITORY" || true
+    # Release created tar.zst
     gh release create latest /tmp/clamav-sigs.tar.zst \
     --repo "$GITHUB_REPOSITORY" \
     --title latest \
     --notes 'Last clamav signatures'
+    # Cleanup old pipeline
+    gh run list --limit 1000 --json databaseId -q '.[].databaseId' | grep -v "^$GITHUB_RUN_ID$" | xargs -I{} gh run delete {}
 else
     echo 'No release was created.'
 fi
