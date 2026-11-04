@@ -19,7 +19,7 @@ mkdir "$workdir" && cd "$workdir"
 # Download official signatures
 mkdir clamav-official-sigs
 sudo chown clamav:clamav clamav-official-sigs
-freshclam --datadir="${workdir}/clamav-official-sigs"
+sudo freshclam --datadir="${workdir}/clamav-official-sigs"
 
 export GNUPGHOME=$(mktemp -d -p /dev/shm --suffix _gpg); chmod 0700 "$GNUPGHOME"
 
