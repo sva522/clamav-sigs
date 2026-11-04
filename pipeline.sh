@@ -19,7 +19,7 @@ mkdir "$workdir" && cd "$workdir"
 
 # Download official signatures
 mkdir clamav-official-sigs && chown clamav:clamav clamav-official-sigs
-freshclam
+freshclam --datadir="${workdir}/clamav-official-sigs"
 
 # Get unofficial signatures download scripts
 repo=extremeshok/clamav-unofficial-sigs
