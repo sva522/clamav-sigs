@@ -49,6 +49,9 @@ tar cf /tmp/clamav-sigs.tar .
 tar tvf /tmp/clamav-sigs.tar
 
 cd "$work_dir"
+export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+ls
+ls .git
 
 # Release tar
 if [ -v GH_TOKEN ]; then
