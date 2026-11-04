@@ -21,6 +21,7 @@ mkdir clamav-official-sigs
 sudo chown clamav:clamav clamav-official-sigs
 sudo mkdir -p /var/log/clamav
 sudo touch /var/log/clamav/freshclam.log
+sudo chown -R clamav:clamav /var/log/clamav
 sudo freshclam --datadir="${workdir}/clamav-official-sigs"
 
 export GNUPGHOME=$(mktemp -d -p /dev/shm --suffix _gpg); chmod 0700 "$GNUPGHOME"
