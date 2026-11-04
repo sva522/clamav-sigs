@@ -52,6 +52,7 @@ cd "$work_dir"
 
 # Release tar
 if [ -v GH_TOKEN ]; then
+    export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
     gh release delete latest --cleanup-tag -y || true
     gh release create latest /tmp/clamav-sigs.tar --title latest --notes 'Last clamav signatures'
 else
