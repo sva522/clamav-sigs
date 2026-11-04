@@ -3,30 +3,23 @@ set -euo pipefail
 
 # Install required tools
 export DEBIAN_FRONTEND=noninteractive
-sudo apt-get update -qq
-sudo apt-get install -y -qq --no-install-recommends \
-    ca-certificates git clamav jq wget curl rsync  \
-    dnsutils gnupg >/dev/null
+apt-get update -qq
+apt-get install -y -qq --no-install-recommends \
+    ca-certificates clamav jq wget curl rsync dnsutils gnupg
 
-# Each build produce an archive which is released with 'latest' tag
-echo 'Remove old latest tag:'
-gh release delete latest --cleanup-tag -y || true
+# Install github cli
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list
+apt-get update -qq
+apt-get install -y -qq --no-install-recommends gh
 
 # Create build dir
 workdir=/tmp/clamav-sigs
 mkdir "$workdir" && cd "$workdir"
 
 # Download official signatures
-mkdir clamav-official-sigs && sudo chown clamav:clamav clamav-official-sigs
-# Configure freshclam
-sudo sed -i 's|^UpdateLogFile .*|UpdateLogFile /proc/self/fd/1|' /etc/clamav/freshclam.conf
-sudo sed -i 's|^Foreground .*|Foreground true|' /etc/clamav/freshclam.conf
-sudo sed -i '/^NotifyClamd /d' /etc/clamav/freshclam.conf
-sudo sed -i "s|^DatabaseDirectory .*|DatabaseDirectory ${workdir}/clamav-official-sigs|" /etc/clamav/freshclam.conf
-sudo cat /etc/clamav/freshclam.conf
-sudo freshclam
-
-export GNUPGHOME=$(mktemp -d -p /dev/shm --suffix _gpg); chmod 0700 "$GNUPGHOME"
+mkdir clamav-official-sigs && chown clamav:clamav clamav-official-sigs
+freshclam
 
 # Get unofficial signatures download scripts
 repo=extremeshok/clamav-unofficial-sigs
@@ -44,14 +37,21 @@ clam_group="clamav"
 user_configuration_complete="yes"
 EOF
 
+# Create gpg tmp dir
+export GNUPGHOME=$(mktemp -d -p /dev/shm --suffix _gpg); chmod 0700 "$GNUPGHOME"
+
 # Download unofficial signatures
 "${downloader_dir}/clamav-unofficial-sigs.sh" -c "${downloader_dir}/config"
 cp -R /var/lib/clamav-unofficial-sigs clamav-unofficial-sigs
 rm -r "${downloader_dir}"
 
 # Create release archive
-sudo chown -R "$(id -u)":"$(id -g)" .
+chown -R clamav:clamav .
 tar cf /tmp/clamav-sigs.tar .
 tar tvf /tmp/clamav-sigs.tar
 
-gh release create latest /tmp/clamav-sigs.tar --repo "$GH_REPO" --title latest
+# Release tar
+if [ -v GH_TOKEN ]; then
+    gh release delete latest --cleanup-tag -y || true
+    gh release create latest /tmp/clamav-sigs.tar --repo "$GH_REPO" --title latest
+fi
